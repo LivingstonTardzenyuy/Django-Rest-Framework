@@ -1,22 +1,16 @@
 from rest_framework import serializers
-from watchlist_app.models import WatchList, StreamPlatForm
+from watchlist_app.models import WatchList, StreamPlatForm, Review
 
-class StreamPlatFormSerializer(serializers.ModelSerializer):
+
+
+class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StreamPlatForm
+        model = Review
         fields = "__all__"
 
-    def validate(self, data):
-        if data['name'] == data['about']:
-            raise serializers.validationError("the title and the story lines must be d/f")
-        else:
-            return data   
 
-    
 class WatchListSerializer(serializers.ModelSerializer):
-
-    len_title = serializers.SerializerMethodField()
-
+    review = serializers.StringRelatedField(many = True, read_only = True)
     class Meta:
         model = WatchList
         fields = "__all__"
@@ -27,6 +21,20 @@ class WatchListSerializer(serializers.ModelSerializer):
             raise serializers.validationError("the title and the story lines must be d/f")
         else:
             return data            
+
+
+
+class StreamPlatFormSerializer(serializers.ModelSerializer):
+    watchlist = serializers.PrimaryKeyRelatedField(many = True, read_only = True)
+    class Meta:
+        model = StreamPlatForm
+        fields = "__all__"
+
+    def validate(self, data):
+        if data['name'] == data['about']:
+            raise serializers.validationError("the title and the story lines must be d/f")
+        else:
+            return data   
 
 
 
