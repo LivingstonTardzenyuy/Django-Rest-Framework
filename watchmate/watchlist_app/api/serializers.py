@@ -1,20 +1,18 @@
 from rest_framework import serializers
-from watchlist_app.models import WatchList
+from watchlist_app.models import WatchList, StreamPlatForm
 
-
-class StreamPlatFormSerailizer(serializers.ModelSerializer):
+class StreamPlatFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = StreamPlatForm
         fields = "__all__"
 
-
     def validate(self, data):
-        if data['title'] == data['storyline']:
+        if data['name'] == data['about']:
             raise serializers.validationError("the title and the story lines must be d/f")
-            
+        else:
+            return data   
 
-
-
+    
 class WatchListSerializer(serializers.ModelSerializer):
 
     len_title = serializers.SerializerMethodField()
@@ -22,6 +20,15 @@ class WatchListSerializer(serializers.ModelSerializer):
     class Meta:
         model = WatchList
         fields = "__all__"
+
+
+    def validate(self, data):
+        if data['title'] == data['storyline']:
+            raise serializers.validationError("the title and the story lines must be d/f")
+        else:
+            return data            
+
+
 
 
     def get_len_title(self, object):

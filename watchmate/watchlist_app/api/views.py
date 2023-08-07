@@ -1,6 +1,6 @@
 from rest_framework.response import Response
-from watchlist_app.models import WatchList
-from .serializers import WatchListSerializer
+from watchlist_app.models import *
+from .serializers import *
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.views import APIView
@@ -8,18 +8,43 @@ from rest_framework.views import APIView
 
 class StreamPlatFormList(APIView):
     def get(self, request):
-        stream = StreamPLatForm.objects.all()
+        stream = StreamPlatForm.objects.all()
+        serializer = StreamPlatFormSerializer(stream, many = True)
+        return Response(serializer.data)
 
+    def post(self, request):
+        serializer = StreamPlatFormSerializer(data = request.data)
+    
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+    
+        else:
+            return Response(serializer.errors)
+        
 
+class StreamPlatFormDetails(APIView):
+    def get(self, request, pk):
+        try:
+            stream = StreamPlatForm.objects.get(pk= pk)
+        except StreamPlatForm.DoesNotExist:
+            return Response({'Error: Stream does not exist'}, status = status.HTTP_404_NOT_FOUND)
+        serializer = StreamPlatFormSerializer(stream, many = False)
+        return Response(serializer.data)
 
+    def put(self, request, pk):
+        stream = StreamPlatForm.objects.get(pk = pk)
+        serializer = StreamPlatFormSerializer(stream, data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
-
-
-
-
-
-
-
+    def delete(self, request, pk):
+        stream = StreamPlatForm.objects.get(pk = pk)
+        stream.delete()
+        return Response(status = status.HTTP_204_NO_CONTENT)
 
 class WatchListList(APIView):
     def get(self, request):
