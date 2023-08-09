@@ -4,6 +4,7 @@ from watchlist_app.models import WatchList, StreamPlatForm, Review
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    review_user = serializers.StringRelatedField(read_only = True)
     class Meta:
         model = Review
         fields = "__all__"
@@ -23,9 +24,8 @@ class WatchListSerializer(serializers.ModelSerializer):
             return data            
 
 
-
 class StreamPlatFormSerializer(serializers.ModelSerializer):
-    watchlist = serializers.PrimaryKeyRelatedField(many = True, read_only = True)
+    watchlist = ReviewSerializer(many = True, read_only = True)
     class Meta:
         model = StreamPlatForm
         fields = "__all__"
