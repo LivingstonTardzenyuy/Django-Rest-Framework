@@ -35,4 +35,4 @@ class Review(models.Model):
 
 
     def __str__(self):
-        return str(self.rating) + " " + self.watchlist.title
+        return self.watchlist.title

@@ -7,27 +7,40 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework import mixins
+from rest_framework.exceptions import ValidationError
 
 
-class ReviewList(mixins.ListModelMixin,
-                mixins.CreateModelMixin,
-                generics.GenericAPIView):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
+
+class ReviewList(APIView):
     
-    def get(self,request,*args,**kwargs):
-        return self.list(request, *args, **kwargs)
-   
-    def post(self,request,*args,**kwargs):
-        return self.create(request, *args, **kwargs)
+    def get(self,request):
+        review = Review.objects.all()
+        serializer_review = ReviewSerializer(review, many = True)
+        return Response(serializer_review.data)
 
-class ReviewCreate(generics.CreateAPIView):
-    serializer_class = ReviewSerializer
+    def post(self, request):
+        serializer_review = ReviewSerializer(data = request.data)
 
-    def perform_create(self, serializer):
-        pk = self.kwargs.get('pk')
-        watchlist = Watchlist.objects.get(pk=pk)
+        review_user = self.request.user 
+        review_queryset = Review.objects.filter(watchlist = watchlist, review_user = review_user)
 
+        if review_queryset.exists():
+            raise ValidationEror("You have already reviewed This WatchLIst")
+
+        if serializer_review.is_valid():
+            serializer_review.save()
+            return Response(serializer_review.data)
+        else:
+            return Response(serializer_review.errors)
+           
+class ReviewDetails(APIView):
+    def get(self, request, pk):
+        try:
+            review = Review.objects.get(pk = pk)
+        except Review.DoesNotExist:
+            return Response({'Error: Stream does not exist'}, status = status.HTTP_404_NOT_FOUND)
+        serializer = ReviewSerializer(review, many = False)
+        return Response(serializer.data)
 class StreamPlatFormList(APIView):
     def get(self, request):
         stream = StreamPlatForm.objects.all()
