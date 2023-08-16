@@ -7,8 +7,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     review_user_name = serializers.SerializerMethodField(read_only = True)
     class Meta:
         model = Review
-        exclude = ('watchlist',)
-
+        exclude = ('watchlist','review_user',)
 
     def get_review_user_name(self, obj):
         return obj.review_user.username if obj.review_user else None

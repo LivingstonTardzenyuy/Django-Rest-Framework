@@ -14,11 +14,11 @@ from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-    # ...
+
 
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
     def get_queryset(request):
         return Review.objects.all()
     
