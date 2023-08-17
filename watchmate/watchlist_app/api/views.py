@@ -71,7 +71,7 @@ class ReviewList(generics.ListAPIView):
             serializer_review.save(watchlist=watchlist, review_user=review_user)
 
             # Update watchlist average rating and number of ratings
-            if watchlist.number_ratings == 0:
+            if watchlist.number_rating == 0:
                 watchlist.avg_rating = serializer_review.validated_data['rating']
             else:
                 total_rating = watchlist.avg_rating * watchlist.number_ratings
@@ -84,8 +84,7 @@ class ReviewList(generics.ListAPIView):
         else:
             return Response(serializer_review.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
-           
+
 class ReviewDetails(APIView):
     permission_classes = [ReviewUserOrReadOnly]
 
@@ -98,7 +97,16 @@ class ReviewDetails(APIView):
         return Response(serializer.data)
 
     def put(self, request, pk):
-        review = Review.objects.get(pk = pk)
+        try:
+            review = Review.objects.get(pk = pk)
+        
+        except Review.DoesNotExist:
+            return Response({'Error: Stream does not exist'}, status = status.HTTP_404_NOT_FOUND)
+
+        if review.review_user != request.user:
+            return Response({'Error: You are not Authorize to perfom this request'}, status=status.HTTP_403_FORBIDDEN)
+
+        
         serializer = ReviewSerializer(review, data = request.data)
         if serializer.is_valid():
             serializer.save()
