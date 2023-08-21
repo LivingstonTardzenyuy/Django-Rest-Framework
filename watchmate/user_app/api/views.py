@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from user_app.api.serializers import UserRegistrationSerializer
-from rest_framework.authoken.models import Token 
+# from rest_framework.authoken.models import Token 
 @api_view(['POST'])
 def registration_view(request):
     if request.method == 'POST':
