@@ -9,16 +9,14 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework import mixins
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
-
-class ReviewList(generics.ListAPIView):
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
+from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
 
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+
+class ReviewList(generics.ListAPIView):
+    serializer_class = ReviewSerializer
     def get_queryset(request):
         return Review.objects.all()
     
@@ -86,7 +84,7 @@ class ReviewList(generics.ListAPIView):
 
 
 class ReviewDetails(APIView):
-    permission_classes = [ReviewUserOrReadOnly]
+    permission_classes = [IsReviewUserOrReadOnly]
 
     def get(self, request, pk):
         try:
@@ -114,7 +112,17 @@ class ReviewDetails(APIView):
         else:
             return Response(serializer.errors)
 
+
+    def delete(self, request, pk):
+        review = Review.objects.get(pk=pk)
+        review.delete()
+        return Response(status= status.HTTP_201_OK)
+
+
 class StreamPlatFormList(APIView):
+
+    permission_classes = [IsAdminOrReadOnly]
+
     def get(self, request):
         stream = StreamPlatForm.objects.all()
         serializer = StreamPlatFormSerializer(stream, many = True)
@@ -155,6 +163,8 @@ class StreamPlatFormDetails(APIView):
         return Response(status = status.HTTP_204_NO_CONTENT)
 
 class WatchListList(APIView):
+
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request):
         movie = WatchList.objects.all()
         serializer = WatchListSerializer(movie, many = True)
@@ -169,6 +179,10 @@ class WatchListList(APIView):
            return Response(serializer.errors)
 
 class WatchListDetails(APIView):
+
+
+    permission_classes = [IsAdminOrReadOnly]
+
     def get(self, request, pk):
         try:
             movie = WatchList.objects.get(pk = pk)

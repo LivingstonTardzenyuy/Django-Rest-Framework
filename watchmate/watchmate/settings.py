@@ -139,7 +139,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+
     ]
+
+}
+
+
+#to allow a d/f access token to be generated once the old one expires
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': True,
 }

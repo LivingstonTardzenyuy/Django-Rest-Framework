@@ -10,8 +10,7 @@ from rest_framework import status
 def logout_view(request):
     if request.method == 'POST':
         request.user.auth_token.delete()
-        return Response(status = status.HTTP_200_OK)
-
+        return Response(status = statusTTP_200_OK)
 
 @api_view(['POST'])
 def registration_view(request):
