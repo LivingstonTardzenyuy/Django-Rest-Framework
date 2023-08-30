@@ -10,15 +10,46 @@ from rest_framework import mixins
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+
+
+# class ReviewList(generics.ListAPIView):
+#     serializer_class = ReviewSerializer
+#     permission_classes = [IsAuthenticated]
+
+
+# class UserReview(generics.ListAPIView):
+#     serializer_class = ReviewSerializer   
+
+    # def get_queryset(self):
+    #     username = self.kwargs['username']
+    #     return Review.objects.filter(review_user__username = username)
+
+    # def get_queryset(self):
+    #     username = self.request.query_params.get('username', None)
+    #     return Review.objects.filter(review_user__username = username)
+
+
+class UserReview(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        username = self.request.GET.get('username')
+        return Review.objects.filter(review_user__username=username)
 
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    throttle_classes =  [ReviewListThrottle]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['review_user__username', 'active']
 
-class ReviewList(generics.ListAPIView):
-    serializer_class = ReviewSerializer
+
     def get_queryset(request):
         return Review.objects.all()
+    
     
     def perform_create(self, serializer):
         pk = self.kwargs.get('pk')
@@ -85,6 +116,9 @@ class ReviewList(generics.ListAPIView):
 
 class ReviewDetails(APIView):
     permission_classes = [IsReviewUserOrReadOnly]
+    throttle_classes = [ReviewListThrottle, AnonRateThrottle]
+
+
 
     def get(self, request, pk):
         try:
@@ -162,6 +196,13 @@ class StreamPlatFormDetails(APIView):
         stream.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
 
+class WatchListGV(generics.ListAPIView):
+    queryset = WatchList.objects.all()
+    serializer_class = WatchListSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['avg_rating']
+
+
 class WatchListList(APIView):
 
     permission_classes = [IsAdminOrReadOnly]
@@ -209,48 +250,3 @@ class WatchListDetails(APIView):
         
 
 
-
-# @api_view(['GET', 'POST'])
-# def movie_list(request): 
-#     if request.method == 'GET':
-#         movies = Movie.objects.all()
-#         serializer = MovieSerializer(movies, many = True)
-#         return Response(serializer.data)
-
-#     if request.method == 'POST':
-#         serializer = MovieSerializer(data = request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors)
-
-
-# @api_view(['GET', 'PUT', 'DELETE'])
-# def movie_details(request, pk):
-#     if request.method == 'GET':
-#         try:
-#             movie = Movie.objects.get(pk = pk)
-        
-#         except Movie.DoesNotExist:
-#             return Response({'Error': 'Movie not found'}, status = status.HTTP_404_NOT_FOUND
-        
-#         serializer = MovieSerializer(movie, many = False)
-#         return Response(serializer.data)
-
-#     if request.method == 'PUT':
-
-#         movie = Movie.objects.get(pk=pk)
-        
-#         serializer = MovieSerializer(movie, data = request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-
-#         else:
-#             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-#     if request.method == 'DELETE':
-#         movie = Movie.objects.get(pk = pk)
-#         movie.delete()
-#         return Response(status = HTTP_200_NO_CONTENT)

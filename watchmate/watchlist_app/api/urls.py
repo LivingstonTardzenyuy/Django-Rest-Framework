@@ -11,5 +11,10 @@ urlpatterns = [
 
 
     path('<int:pk>/reviews/', ReviewList.as_view(), name = 'reviews'),
-    path('reviews/details/<int:pk>', ReviewDetails.as_view(), name = 'review-details')
+    path('reviews/details/<int:pk>', ReviewDetails.as_view(), name = 'review-details'),
+
+
+    path('reviews/', UserReview.as_view(), name = 'user-review-details'),
+
+    path('list2/', WatchListGV.as_view(), name = 'watch-list'),
 ]

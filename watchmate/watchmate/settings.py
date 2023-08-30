@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'watchlist_app',
     'rest_framework',
     'rest_framework.authtoken',
-
+    'django_filters',
 ]
 
 
@@ -138,18 +138,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
+    
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    
+        'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '2/day',
+        'user': '6/day',
+        'review-create': '4/day',
+        'review-list': '10/day',
 
+    }
 
-    ]
-
+    
 }
 
-
-#to allow a d/f access token to be generated once the old one expires
-SIMPLE_JWT = {
-    'ROTATE_REFRESH_TOKENS': True,
-}
+# SIMPLE_JWT = {
+#     'ROTATE_REFRESH_TOKENS': True,
